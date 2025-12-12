@@ -3,14 +3,20 @@ import { Header } from "./components/Header";
 import { ModeSelector } from "./components/ModeSelector";
 import { Timer } from "./components/Timer";
 import { TimerControls } from "./components/TimerControls";
-import { DEFAULT_DURATIONS, type Mode } from "./utils/helpers";
+import {
+  DEFAULT_DURATIONS,
+  DESCANSO_PERIODO,
+  type Mode,
+} from "./utils/helpers";
 import {
   getDurationsFromLocalStorage,
   saveDurationsInLocalStorage,
 } from "./utils/durations";
 import {
+  getDescansoPeriodFromLocalStorage,
   getPomodoroCounterFromLocalStorage,
   incrementPomodoroCounter,
+  saveDescansoPeriodInLocalStorage,
 } from "./utils/pomodoro";
 
 const MODE_STATUS: { [key in Mode]: string } = {
@@ -22,6 +28,8 @@ const MODE_STATUS: { [key in Mode]: string } = {
 function App() {
   const [modeDurations, setModeDurations] =
     useState<{ [key in Mode]: number }>(DEFAULT_DURATIONS);
+  const [descansoPeriod, setDescansoPeriod] =
+    useState<number>(DESCANSO_PERIODO);
   const [mode, setMode] = useState<Mode>("foco");
   const [timeLeft, setTimeLeft] = useState(modeDurations.foco);
   const [isRunning, setIsRunning] = useState(false);
@@ -38,6 +46,7 @@ function App() {
   useEffect(() => {
     setModeDurations(getDurationsFromLocalStorage());
     setPomodoroCount(getPomodoroCounterFromLocalStorage());
+    setDescansoPeriod(getDescansoPeriodFromLocalStorage());
   }, []);
 
   useEffect(() => {
@@ -53,9 +62,18 @@ function App() {
           if (prev <= 1) {
             setIsRunning(false);
 
-            if (mode === "foco") {
-              const newCount = incrementPomodoroCounter();
-              setPomodoroCount(newCount);
+            switch (mode) {
+              case "foco":
+                handleTriggerFoco();
+                break;
+              case "pausa":
+                handleTriggerPausa();
+                break;
+              case "descanso":
+                handleTriggerDescanso();
+                break;
+              default:
+                break;
             }
 
             return 0;
@@ -107,6 +125,33 @@ function App() {
     setIsRunning(false);
   };
 
+  const handleUpdateDescansoPeriod = (newPeriod: number) => {
+    setDescansoPeriod(newPeriod);
+    saveDescansoPeriodInLocalStorage(newPeriod);
+  };
+
+  const handleTriggerFoco = () => {
+    if (pomodoroCount % descansoPeriod === 0) {
+      setMode("descanso");
+    } else {
+      setMode("pausa");
+    }
+  };
+
+  const handleTriggerPausa = () => {
+    const newCount = incrementPomodoroCounter();
+    setPomodoroCount(newCount);
+
+    setMode("foco");
+  };
+
+  const handleTriggerDescanso = () => {
+    const newCount = incrementPomodoroCounter();
+    setPomodoroCount(newCount);
+
+    setMode("foco");
+  };
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative overflow-hidden">
       {/* Radial glow background effect */}
@@ -121,6 +166,7 @@ function App() {
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Header
           onUpdateDurations={handleUpdateDurations}
+          handleUpdateDescansoPeriod={handleUpdateDescansoPeriod}
           currentDurations={modeDurations}
           pomodoroCount={pomodoroCount}
         />

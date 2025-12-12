@@ -1,3 +1,5 @@
+import { DESCANSO_PERIODO } from "./helpers";
+
 const POMODORO_COUNTER_KEY = "pomodoroCounter";
 
 export const getPomodoroCounterFromLocalStorage = (): number => {
@@ -14,4 +16,15 @@ export const incrementPomodoroCounter = (): number => {
   const newCounter = current + 1;
   savePomodoroCounterInLocalStorage(newCounter);
   return newCounter;
+};
+
+const DESCANSO_PERIODO_KEY = "descansoPeriod";
+
+export const getDescansoPeriodFromLocalStorage = (): number => {
+  const period = localStorage.getItem(DESCANSO_PERIODO_KEY);
+  return period ? parseInt(period, 10) : DESCANSO_PERIODO;
+};
+
+export const saveDescansoPeriodInLocalStorage = (period: number) => {
+  localStorage.setItem(DESCANSO_PERIODO_KEY, period.toString());
 };

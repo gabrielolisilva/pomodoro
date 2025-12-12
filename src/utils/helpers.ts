@@ -6,7 +6,9 @@ export const MySwal = withReactContent(Swal);
 export type Mode = "foco" | "pausa" | "descanso";
 
 export const DEFAULT_DURATIONS: { [key in Mode]: number } = {
-  foco: 25 * 60,
-  pausa: 5 * 60,
-  descanso: 15 * 60,
+  foco: 2, // 25 * 60
+  pausa: 2, // 5 * 60
+  descanso: 2, // 15 * 60
 };
+
+export const DESCANSO_PERIODO = 4;
