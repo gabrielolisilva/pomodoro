@@ -178,6 +178,7 @@ function App() {
             minutes={minutes}
             seconds={seconds}
             status={MODE_STATUS[mode]}
+            mode={mode}
           />
 
           <TimerControls

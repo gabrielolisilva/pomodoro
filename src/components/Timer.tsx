@@ -1,10 +1,13 @@
+import type { Mode } from "../utils/helpers";
+
 interface TimerProps {
   minutes: number;
   seconds: number;
   status: string;
+  mode: Mode;
 }
 
-export function Timer({ minutes, seconds, status }: TimerProps) {
+export function Timer({ minutes, seconds, status, mode }: TimerProps) {
   const formatTime = (value: number) => {
     return value.toString().padStart(2, "0");
   };
@@ -18,7 +21,11 @@ export function Timer({ minutes, seconds, status }: TimerProps) {
           className="absolute inset-0 rounded-full blur-3xl"
           style={{
             background:
-              "radial-gradient(circle, rgba(249, 115, 22, 0.3) 0%, transparent 70%)",
+              mode === "foco"
+                ? "radial-gradient(circle, rgba(249, 72, 4, 0.7) 0%, transparent 70%)"
+                : mode === "pausa"
+                ? "radial-gradient(circle, rgba(6, 209, 90, 0.7) 0%, transparent 70%)"
+                : "radial-gradient(circle, rgba(0, 110, 255, 0.7) 0%, transparent 70%)",
             transform: "scale(1.5)",
           }}
         ></div>
