@@ -31,9 +31,10 @@ function App() {
   const [descansoPeriod, setDescansoPeriod] =
     useState<number>(DESCANSO_PERIODO);
   const [mode, setMode] = useState<Mode>("foco");
-  const [timeLeft, setTimeLeft] = useState(modeDurations.foco);
-  const [isRunning, setIsRunning] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number>(modeDurations.foco);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
   const [pomodoroCount, setPomodoroCount] = useState<number>(0);
+  const [workingPomodoroCount, setWorkingPomodoroCount] = useState<number>(0);
   const intervalRef = useRef<number | null>(null);
 
   const minutes = Math.floor(timeLeft / 60);
@@ -131,6 +132,8 @@ function App() {
   };
 
   const handleTriggerFoco = () => {
+    setWorkingPomodoroCount(workingPomodoroCount + 1);
+
     if (pomodoroCount % descansoPeriod === 0) {
       setMode("descanso");
     } else {
@@ -179,6 +182,7 @@ function App() {
             seconds={seconds}
             status={MODE_STATUS[mode]}
             mode={mode}
+            workingPomodoroCount={workingPomodoroCount}
           />
 
           <TimerControls

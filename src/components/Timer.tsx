@@ -5,9 +5,16 @@ interface TimerProps {
   seconds: number;
   status: string;
   mode: Mode;
+  workingPomodoroCount: number;
 }
 
-export function Timer({ minutes, seconds, status, mode }: TimerProps) {
+export function Timer({
+  minutes,
+  seconds,
+  status,
+  mode,
+  workingPomodoroCount,
+}: TimerProps) {
   const formatTime = (value: number) => {
     return value.toString().padStart(2, "0");
   };
@@ -39,6 +46,9 @@ export function Timer({ minutes, seconds, status, mode }: TimerProps) {
           </div>
         </div>
       </div>
+      {mode === "foco" && (
+        <p className="text-white mt-4"># {workingPomodoroCount}</p>
+      )}
     </div>
   );
 }
