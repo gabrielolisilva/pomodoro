@@ -7,6 +7,7 @@ import {
   updateTask,
   deleteTask,
   getFirstNotCompletedTaskId,
+  moveTaskToCompleted,
 } from "../utils/tasks";
 import { TaskForm } from "./TaskForm";
 import { TaskItem } from "./TaskItem";
@@ -39,19 +40,24 @@ export function TaskList({
 
   useEffect(() => {
     const updatedTasks = getTasksFromLocalStorage();
-    setTasks(updatedTasks);
+
+    updatedTasks.forEach((task) => {
+      if (task.completedPomodoros >= task.estimatedPomodoros) {
+        moveTaskToCompleted(task.id);
+      }
+    });
+
+    const remainingTasks = getTasksFromLocalStorage();
+    setTasks(remainingTasks);
 
     if (activeTaskId) {
-      const activeTask = updatedTasks.find((t) => t.id === activeTaskId);
-      if (
-        activeTask &&
-        activeTask.completedPomodoros >= activeTask.estimatedPomodoros
-      ) {
+      const activeTask = remainingTasks.find((t) => t.id === activeTaskId);
+      if (!activeTask) {
         const nextTaskId = getFirstNotCompletedTaskId();
-        if (nextTaskId && nextTaskId !== activeTaskId) {
+        if (nextTaskId) {
           setActiveTaskId(nextTaskId);
           onActiveTaskChange(nextTaskId);
-        } else if (!nextTaskId) {
+        } else {
           setActiveTaskId(null);
           onActiveTaskChange(null);
         }
@@ -63,8 +69,6 @@ export function TaskList({
         onActiveTaskChange(firstNotCompletedId);
       }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workingPomodoroCount]);
 
   const handleSave = (
@@ -129,18 +133,22 @@ export function TaskList({
   const handleToggleComplete = (taskId: string) => {
     const task = tasks.find((t) => t.id === taskId);
     if (task) {
-      const newCompletedPomodoros =
-        task.completedPomodoros >= task.estimatedPomodoros
-          ? 0
-          : task.estimatedPomodoros;
+      const isCurrentlyCompleted =
+        task.completedPomodoros >= task.estimatedPomodoros;
+
+      if (isCurrentlyCompleted) {
+        return;
+      }
+
+      const newCompletedPomodoros = task.estimatedPomodoros;
       updateTask(taskId, { completedPomodoros: newCompletedPomodoros });
+
+      moveTaskToCompleted(taskId);
+
       const updatedTasks = getTasksFromLocalStorage();
       setTasks(updatedTasks);
 
-      if (
-        activeTaskId === taskId &&
-        newCompletedPomodoros >= task.estimatedPomodoros
-      ) {
+      if (activeTaskId === taskId) {
         const nextTaskId = getFirstNotCompletedTaskId();
         if (nextTaskId) {
           setActiveTaskId(nextTaskId);

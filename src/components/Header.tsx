@@ -1,4 +1,6 @@
 import { GoGear } from "react-icons/go";
+import { HiCheckCircle } from "react-icons/hi2";
+import { Link, useLocation } from "react-router-dom";
 import {
   DEFAULT_DURATIONS,
   DESCANSO_PERIODO,
@@ -7,6 +9,8 @@ import {
 } from "../utils/helpers";
 import { useRef } from "react";
 import Swal from "sweetalert2";
+import { getCompletedTasksFromLocalStorage } from "../utils/tasks";
+import { PaginationPathEnum } from "../utils/pagination";
 
 interface HeaderProps {
   onUpdateDurations: (durations: { [key in Mode]: number }) => void;
@@ -21,10 +25,13 @@ export function Header({
   pomodoroCount,
   handleUpdateDescansoPeriod,
 }: HeaderProps) {
+  const location = useLocation();
   const focoTimeRef = useRef<HTMLInputElement>(null);
   const pausaTimeRef = useRef<HTMLInputElement>(null);
   const descansoTimeRef = useRef<HTMLInputElement>(null);
   const descansoPeriodRef = useRef<HTMLInputElement>(null);
+
+  const completedTasksCount = getCompletedTasksFromLocalStorage().length;
 
   const handleSettingsClick = async () => {
     const focoMinutes = Math.floor(currentDurations.foco / 60);
@@ -198,13 +205,39 @@ export function Header({
           </div>
         )}
       </div>
-      <button
-        onClick={handleSettingsClick}
-        className="text-white hover:text-orange-500 transition-colors cursor-pointer"
-        aria-label="Configurações"
-      >
-        <GoGear size={24} />
-      </button>
+      <div className="flex items-center gap-4">
+        {location.pathname === PaginationPathEnum.HOME &&
+          completedTasksCount > 0 && (
+            <Link
+              to={PaginationPathEnum.COMPLETED_TASKS}
+              className="relative text-gray-400 hover:text-orange-500 transition-colors cursor-pointer"
+              aria-label="Ver tarefas completas"
+            >
+              <HiCheckCircle size={24} />
+              {completedTasksCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {completedTasksCount > 9 ? "9+" : completedTasksCount}
+                </span>
+              )}
+            </Link>
+          )}
+        {location.pathname === PaginationPathEnum.COMPLETED_TASKS && (
+          <Link
+            to={PaginationPathEnum.HOME}
+            className="text-gray-400 hover:text-orange-500 transition-colors cursor-pointer"
+            aria-label="Voltar para home"
+          >
+            <HiCheckCircle size={24} className="text-orange-500" />
+          </Link>
+        )}
+        <button
+          onClick={handleSettingsClick}
+          className="text-white hover:text-orange-500 transition-colors cursor-pointer"
+          aria-label="Configurações"
+        >
+          <GoGear size={24} />
+        </button>
+      </div>
     </header>
   );
 }

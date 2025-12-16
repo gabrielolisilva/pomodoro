@@ -9,6 +9,7 @@ export interface Task {
 }
 
 const TASKS_KEY = "tasks";
+const COMPLETED_TASKS_KEY = "completedTasks";
 
 export const saveTasksInLocalStorage = (tasks: Task[]) => {
   localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
@@ -84,7 +85,54 @@ export const incrementTaskPomodoro = (taskId: string): Task | null => {
     task.estimatedPomodoros
   );
 
-  return updateTask(taskId, { completedPomodoros: newCompletedPomodoros });
+  const updatedTask = updateTask(taskId, {
+    completedPomodoros: newCompletedPomodoros,
+  });
+
+  if (updatedTask && newCompletedPomodoros >= task.estimatedPomodoros) {
+    moveTaskToCompleted(taskId);
+  }
+
+  return updatedTask;
+};
+
+export const getCompletedTasksFromLocalStorage = (): Task[] => {
+  const tasks = localStorage.getItem(COMPLETED_TASKS_KEY);
+  return tasks ? JSON.parse(tasks) : [];
+};
+
+export const saveCompletedTasksInLocalStorage = (tasks: Task[]) => {
+  localStorage.setItem(COMPLETED_TASKS_KEY, JSON.stringify(tasks));
+};
+
+export const moveTaskToCompleted = (taskId: string): boolean => {
+  const tasks = getTasksFromLocalStorage();
+  const task = tasks.find((t) => t.id === taskId);
+
+  if (!task) return false;
+
+  const filteredTasks = tasks.filter((t) => t.id !== taskId);
+  saveTasksInLocalStorage(filteredTasks);
+
+  const completedTasks = getCompletedTasksFromLocalStorage();
+  const taskWithCompletedAt: Task = {
+    ...task,
+    updatedAt: Date.now(),
+  };
+  completedTasks.push(taskWithCompletedAt);
+  saveCompletedTasksInLocalStorage(completedTasks);
+
+  return true;
+};
+
+export const deleteCompletedTask = (taskId: string): boolean => {
+  const completedTasks = getCompletedTasksFromLocalStorage();
+  const filteredTasks = completedTasks.filter((t) => t.id !== taskId);
+
+  if (filteredTasks.length === completedTasks.length) return false;
+
+  saveCompletedTasksInLocalStorage(filteredTasks);
+  return true;
 };
 
 export const calculateEstimatedTime = (
