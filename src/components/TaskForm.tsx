@@ -1,11 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { type Task } from "../utils/tasks";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi2";
 import { MdDelete } from "react-icons/md";
+import { MySwal } from "../utils/helpers";
 
 interface TaskFormProps {
   task?: Task | null;
-  onSave: (name: string, estimatedPomodoros: number, note?: string) => void;
+  onSave: (
+    name: string,
+    completedPomodoros: number,
+    estimatedPomodoros: number,
+    note?: string
+  ) => void;
   onCancel: () => void;
   onDelete?: (taskId: string) => void;
 }
@@ -15,16 +21,23 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(
     task?.estimatedPomodoros || 1
   );
+  const [completedPomodoros, setCompletedPomodoros] = useState(
+    task?.completedPomodoros || 0
+  );
   const [note, setNote] = useState(task?.note || "");
+
+  const noteTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (task) {
       setName(task.name);
       setEstimatedPomodoros(task.estimatedPomodoros);
+      setCompletedPomodoros(task.completedPomodoros);
       setNote(task.note || "");
     } else {
       setName("");
       setEstimatedPomodoros(1);
+      setCompletedPomodoros(0);
       setNote("");
     }
   }, [task]);
@@ -40,7 +53,45 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      onSave(name.trim(), estimatedPomodoros, note.trim() || undefined);
+      onSave(
+        name.trim(),
+        completedPomodoros,
+        estimatedPomodoros,
+        note.trim() || undefined
+      );
+    }
+  };
+
+  const displaySwalNote = async () => {
+    const result = await MySwal.fire({
+      title: note ? "Editar Nota" : "Adicionar Nota",
+      html: (
+        <div className="text-left mt-4">
+          <label className="block mb-2 text-gray-700 font-medium">Nota:</label>
+          <textarea
+            id="swal-note"
+            ref={noteTextareaRef}
+            defaultValue={note}
+            rows={6}
+            className="w-full p-2 border border-gray-300 rounded resize-none"
+            placeholder="Digite sua nota aqui..."
+          />
+        </div>
+      ),
+      showCancelButton: true,
+      reverseButtons: true,
+      confirmButtonText: "Salvar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#f97316",
+      cancelButtonColor: "#6b7280",
+      preConfirm: () => {
+        const noteInput = noteTextareaRef.current?.value;
+        return noteInput?.trim() || "";
+      },
+    });
+
+    if (result.isConfirmed && result.value !== undefined) {
+      setNote(result.value as string);
     }
   };
 
@@ -63,6 +114,20 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
           Est Pomodoros
         </label>
         <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min="0"
+            max="99"
+            value={completedPomodoros}
+            onChange={(e) => {
+              const value = parseInt(e.target.value, 10);
+              if (!isNaN(value) && value >= 0 && value <= 99) {
+                setCompletedPomodoros(value);
+              }
+            }}
+            className="w-16 bg-gray-800 text-white border border-gray-700 rounded px-2 py-1 text-center outline-none focus:border-orange-500"
+          />
+          <span className="text-white text-xl">/</span>
           <input
             type="number"
             min="1"
@@ -113,15 +178,7 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
         )}
         <button
           type="button"
-          onClick={() => {
-            const newNote = prompt(
-              note ? "Editar nota:" : "Adicionar nota:",
-              note
-            );
-            if (newNote !== null) {
-              setNote(newNote);
-            }
-          }}
+          onClick={displaySwalNote}
           className="text-gray-400 hover:text-orange-500 text-sm transition-colors"
         >
           {note ? "Editar Nota" : "+ Adicionar Nota"}

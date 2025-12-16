@@ -28,6 +28,7 @@ export const getFirstNotCompletedTaskId = (): string | null => {
 
 export const createTask = (
   name: string,
+  completedPomodoros: number,
   estimatedPomodoros: number,
   note?: string
 ): Task => {
@@ -36,7 +37,7 @@ export const createTask = (
     id: `task-${now}-${Math.random().toString(36).substr(2, 9)}`,
     name,
     estimatedPomodoros,
-    completedPomodoros: 0,
+    completedPomodoros,
     createdAt: now,
     updatedAt: now,
     note,

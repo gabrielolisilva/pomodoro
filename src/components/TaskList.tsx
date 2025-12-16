@@ -69,12 +69,14 @@ export function TaskList({
 
   const handleSave = (
     name: string,
+    completedPomodoros: number,
     estimatedPomodoros: number,
     note?: string
   ) => {
     if (editingTask) {
       const updated = updateTask(editingTask.id, {
         name,
+        completedPomodoros,
         estimatedPomodoros,
         note,
       });
@@ -83,7 +85,12 @@ export function TaskList({
       }
       setEditingTask(null);
     } else {
-      const newTask = createTask(name, estimatedPomodoros, note);
+      const newTask = createTask(
+        name,
+        completedPomodoros,
+        estimatedPomodoros,
+        note
+      );
       const updatedTasks = [...tasks, newTask];
       setTasks(updatedTasks);
       saveTasksInLocalStorage(updatedTasks);
