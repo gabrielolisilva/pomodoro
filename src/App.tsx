@@ -3,6 +3,8 @@ import { Header } from "./components/Header";
 import { ModeSelector } from "./components/ModeSelector";
 import { Timer } from "./components/Timer";
 import { TimerControls } from "./components/TimerControls";
+import { TaskList } from "./components/TaskList";
+import { TaskSummary } from "./components/TaskSummary";
 import {
   DEFAULT_DURATIONS,
   DESCANSO_PERIODO,
@@ -18,6 +20,7 @@ import {
   incrementPomodoroCounter,
   saveDescansoPeriodInLocalStorage,
 } from "./utils/pomodoro";
+import { incrementTaskPomodoro } from "./utils/tasks";
 
 const MODE_STATUS: { [key in Mode]: string } = {
   foco: "Hora de focar",
@@ -35,6 +38,7 @@ function App() {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [pomodoroCount, setPomodoroCount] = useState<number>(0);
   const [workingPomodoroCount, setWorkingPomodoroCount] = useState<number>(0);
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const intervalRef = useRef<number | null>(null);
 
   const minutes = Math.floor(timeLeft / 60);
@@ -132,7 +136,13 @@ function App() {
   };
 
   const handleTriggerFoco = () => {
-    setWorkingPomodoroCount(workingPomodoroCount + 1);
+    const newCount = workingPomodoroCount + 1;
+    setWorkingPomodoroCount(newCount);
+
+    // Incrementa pomodoro da tarefa ativa se houver
+    if (activeTaskId) {
+      incrementTaskPomodoro(activeTaskId);
+    }
 
     if (pomodoroCount % descansoPeriod === 0) {
       setMode("descanso");
@@ -166,7 +176,7 @@ function App() {
         }}
       ></div>
 
-      <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="flex flex-col min-h-screen">
         <Header
           onUpdateDurations={handleUpdateDurations}
           handleUpdateDescansoPeriod={handleUpdateDescansoPeriod}
@@ -174,24 +184,38 @@ function App() {
           pomodoroCount={pomodoroCount}
         />
 
-        <div className="flex flex-col items-center justify-start flex-1 max-w-md w-full mt-[100px]">
-          <ModeSelector currentMode={mode} onModeChange={handleModeChange} />
+        <div className="flex flex-col justify-center items-center pb-10">
+          <div className="flex flex-col items-center justify-start mt-8 lg:mt-[100px]">
+            <ModeSelector currentMode={mode} onModeChange={handleModeChange} />
 
-          <Timer
-            minutes={minutes}
-            seconds={seconds}
-            status={MODE_STATUS[mode]}
-            mode={mode}
-            workingPomodoroCount={workingPomodoroCount}
-          />
+            <Timer
+              minutes={minutes}
+              seconds={seconds}
+              status={MODE_STATUS[mode]}
+              mode={mode}
+              workingPomodoroCount={workingPomodoroCount}
+            />
 
-          <TimerControls
-            isRunning={isRunning}
-            onStart={handleStart}
-            onPause={handlePause}
-            onReset={handleReset}
-          />
+            <TimerControls
+              isRunning={isRunning}
+              onStart={handleStart}
+              onPause={handlePause}
+              onReset={handleReset}
+            />
+          </div>
+
+          <div className="max-w-2xl w-full mt-8 lg:mt-[100px]">
+            <TaskList
+              workingPomodoroCount={workingPomodoroCount}
+              onActiveTaskChange={(taskId) => setActiveTaskId(taskId)}
+            />
+          </div>
         </div>
+
+        <TaskSummary
+          pomodoroDurationSeconds={modeDurations.foco}
+          refreshTrigger={workingPomodoroCount}
+        />
       </div>
     </div>
   );
