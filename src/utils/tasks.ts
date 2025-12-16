@@ -19,6 +19,13 @@ export const getTasksFromLocalStorage = (): Task[] => {
   return tasks ? JSON.parse(tasks) : [];
 };
 
+export const getFirstNotCompletedTaskId = (): string | null => {
+  const tasks = getTasksFromLocalStorage();
+  return (
+    tasks.find((t) => t.completedPomodoros < t.estimatedPomodoros)?.id || null
+  );
+};
+
 export const createTask = (
   name: string,
   estimatedPomodoros: number,

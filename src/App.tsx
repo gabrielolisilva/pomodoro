@@ -19,6 +19,7 @@ import {
   getPomodoroCounterFromLocalStorage,
   incrementPomodoroCounter,
   saveDescansoPeriodInLocalStorage,
+  savePomodoroCounterInLocalStorage,
 } from "./utils/pomodoro";
 import { incrementTaskPomodoro } from "./utils/tasks";
 
@@ -39,7 +40,10 @@ function App() {
   const [pomodoroCount, setPomodoroCount] = useState<number>(0);
   const [workingPomodoroCount, setWorkingPomodoroCount] = useState<number>(0);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+
   const intervalRef = useRef<number | null>(null);
+  const modeRef = useRef<Mode>(mode);
+  const hasTransitionedRef = useRef<boolean>(false);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -61,13 +65,23 @@ function App() {
   }, [minutes, seconds, mode]);
 
   useEffect(() => {
+    modeRef.current = mode;
+    hasTransitionedRef.current = false;
+  }, [mode]);
+
+  useEffect(() => {
     if (isRunning) {
       intervalRef.current = window.setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
+            if (hasTransitionedRef.current) {
+              return 0;
+            }
+
+            hasTransitionedRef.current = true;
             setIsRunning(false);
 
-            switch (mode) {
+            switch (modeRef.current) {
               case "foco":
                 handleTriggerFoco();
                 break;
@@ -98,7 +112,7 @@ function App() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, mode]);
+  }, [isRunning]);
 
   useEffect(() => {
     setTimeLeft(modeDurations[mode]);
@@ -118,8 +132,12 @@ function App() {
   };
 
   const handleReset = () => {
+    setMode("foco");
     setIsRunning(false);
-    setTimeLeft(modeDurations[mode]);
+    setTimeLeft(modeDurations["foco"]);
+    setWorkingPomodoroCount(0);
+    setPomodoroCount(0);
+    savePomodoroCounterInLocalStorage(0);
   };
 
   const handleUpdateDurations = (newDurations: { [key in Mode]: number }) => {
@@ -136,15 +154,16 @@ function App() {
   };
 
   const handleTriggerFoco = () => {
-    const newCount = workingPomodoroCount + 1;
-    setWorkingPomodoroCount(newCount);
+    setWorkingPomodoroCount((prev) => prev + 1);
 
-    // Incrementa pomodoro da tarefa ativa se houver
     if (activeTaskId) {
       incrementTaskPomodoro(activeTaskId);
     }
 
-    if (pomodoroCount % descansoPeriod === 0) {
+    if (
+      pomodoroCount >= descansoPeriod &&
+      pomodoroCount % descansoPeriod === 0
+    ) {
       setMode("descanso");
     } else {
       setMode("pausa");

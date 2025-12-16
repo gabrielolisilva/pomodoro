@@ -6,6 +6,7 @@ import {
   createTask,
   updateTask,
   deleteTask,
+  getFirstNotCompletedTaskId,
 } from "../utils/tasks";
 import { TaskForm } from "./TaskForm";
 import { TaskItem } from "./TaskItem";
@@ -26,11 +27,44 @@ export function TaskList({
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
 
   useEffect(() => {
-    setTasks(getTasksFromLocalStorage());
+    const loadedTasks = getTasksFromLocalStorage();
+    setTasks(loadedTasks);
+
+    const firstNotCompletedId = getFirstNotCompletedTaskId();
+    if (firstNotCompletedId) {
+      setActiveTaskId(firstNotCompletedId);
+      onActiveTaskChange(firstNotCompletedId);
+    }
   }, []);
 
   useEffect(() => {
-    setTasks(getTasksFromLocalStorage());
+    const updatedTasks = getTasksFromLocalStorage();
+    setTasks(updatedTasks);
+
+    if (activeTaskId) {
+      const activeTask = updatedTasks.find((t) => t.id === activeTaskId);
+      if (
+        activeTask &&
+        activeTask.completedPomodoros >= activeTask.estimatedPomodoros
+      ) {
+        const nextTaskId = getFirstNotCompletedTaskId();
+        if (nextTaskId && nextTaskId !== activeTaskId) {
+          setActiveTaskId(nextTaskId);
+          onActiveTaskChange(nextTaskId);
+        } else if (!nextTaskId) {
+          setActiveTaskId(null);
+          onActiveTaskChange(null);
+        }
+      }
+    } else {
+      const firstNotCompletedId = getFirstNotCompletedTaskId();
+      if (firstNotCompletedId) {
+        setActiveTaskId(firstNotCompletedId);
+        onActiveTaskChange(firstNotCompletedId);
+      }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workingPomodoroCount]);
 
   const handleSave = (
@@ -54,6 +88,11 @@ export function TaskList({
       setTasks(updatedTasks);
       saveTasksInLocalStorage(updatedTasks);
       setIsAddingTask(false);
+
+      if (!activeTaskId) {
+        setActiveTaskId(newTask.id);
+        onActiveTaskChange(newTask.id);
+      }
     }
   };
 
@@ -88,7 +127,22 @@ export function TaskList({
           ? 0
           : task.estimatedPomodoros;
       updateTask(taskId, { completedPomodoros: newCompletedPomodoros });
-      setTasks(getTasksFromLocalStorage());
+      const updatedTasks = getTasksFromLocalStorage();
+      setTasks(updatedTasks);
+
+      if (
+        activeTaskId === taskId &&
+        newCompletedPomodoros >= task.estimatedPomodoros
+      ) {
+        const nextTaskId = getFirstNotCompletedTaskId();
+        if (nextTaskId) {
+          setActiveTaskId(nextTaskId);
+          onActiveTaskChange(nextTaskId);
+        } else {
+          setActiveTaskId(null);
+          onActiveTaskChange(null);
+        }
+      }
     }
   };
 
