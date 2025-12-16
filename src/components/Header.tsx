@@ -7,7 +7,7 @@ import {
   MySwal,
   type Mode,
 } from "../utils/helpers";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { getCompletedTasksFromLocalStorage } from "../utils/tasks";
 import { PaginationPathEnum } from "../utils/pagination";
@@ -31,7 +31,30 @@ export function Header({
   const descansoTimeRef = useRef<HTMLInputElement>(null);
   const descansoPeriodRef = useRef<HTMLInputElement>(null);
 
-  const completedTasksCount = getCompletedTasksFromLocalStorage().length;
+  const [completedTasksCount, setCompletedTasksCount] = useState(
+    getCompletedTasksFromLocalStorage().length
+  );
+
+  useEffect(() => {
+    const updateCount = () => {
+      const count = getCompletedTasksFromLocalStorage().length;
+      setCompletedTasksCount(count);
+    };
+
+    updateCount();
+
+    const interval = setInterval(updateCount, 500);
+
+    const handleStorageChange = () => {
+      updateCount();
+    };
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [location.pathname]);
 
   const handleSettingsClick = async () => {
     const focoMinutes = Math.floor(currentDurations.foco / 60);
