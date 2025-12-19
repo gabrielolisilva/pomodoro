@@ -16,11 +16,13 @@ import { HiEllipsisVertical } from "react-icons/hi2";
 interface TaskListProps {
   workingPomodoroCount: number;
   onActiveTaskChange: (taskId: string | null) => void;
+  pomodoroDurationSeconds: number;
 }
 
 export function TaskList({
   workingPomodoroCount,
   onActiveTaskChange,
+  pomodoroDurationSeconds,
 }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -198,6 +200,7 @@ export function TaskList({
                 task={task}
                 onEdit={handleEdit}
                 onToggleComplete={handleToggleComplete}
+                pomodoroDurationSeconds={pomodoroDurationSeconds}
               />
             </div>
           </div>

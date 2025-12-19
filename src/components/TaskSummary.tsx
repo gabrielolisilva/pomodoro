@@ -17,6 +17,8 @@ export function TaskSummary({
   refreshTrigger,
 }: TaskSummaryProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [finishTime, setFinishTime] = useState<Date>(new Date());
+  const [durationHours, setDurationHours] = useState<number>(0);
 
   useEffect(() => {
     setTasks(getTasksFromLocalStorage());
@@ -32,10 +34,15 @@ export function TaskSummary({
   );
   const remainingPomodoros = totalEstimated - totalCompleted;
 
-  const { finishTime, durationHours } = calculateEstimatedTime(
-    remainingPomodoros,
-    pomodoroDurationSeconds
-  );
+  setInterval(() => {
+    const { finishTime, durationHours } = calculateEstimatedTime(
+      remainingPomodoros,
+      pomodoroDurationSeconds
+    );
+
+    setFinishTime(finishTime);
+    setDurationHours(durationHours);
+  }, 1000);
 
   if (tasks.length === 0 || remainingPomodoros === 0) {
     return null;

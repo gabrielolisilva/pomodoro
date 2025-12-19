@@ -1,4 +1,4 @@
-import { type Task } from "../utils/tasks";
+import { calculateEstimatedTime, formatTime, type Task } from "../utils/tasks";
 import { HiEllipsisVertical } from "react-icons/hi2";
 import { MdCheckCircle, MdRadioButtonUnchecked } from "react-icons/md";
 
@@ -6,10 +6,21 @@ interface TaskItemProps {
   task: Task;
   onEdit: (task: Task) => void;
   onToggleComplete: (taskId: string) => void;
+  pomodoroDurationSeconds: number;
 }
 
-export function TaskItem({ task, onEdit, onToggleComplete }: TaskItemProps) {
+export function TaskItem({
+  task,
+  onEdit,
+  onToggleComplete,
+  pomodoroDurationSeconds,
+}: TaskItemProps) {
   const isCompleted = task.completedPomodoros >= task.estimatedPomodoros;
+
+  const { finishTime } = calculateEstimatedTime(
+    task.estimatedPomodoros - task.completedPomodoros,
+    pomodoroDurationSeconds
+  );
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-2 flex items-center gap-3">
@@ -41,6 +52,7 @@ export function TaskItem({ task, onEdit, onToggleComplete }: TaskItemProps) {
         <span className="text-gray-400">
           {task.completedPomodoros}/{task.estimatedPomodoros}
         </span>
+        <span className="text-gray-400">{formatTime(finishTime)}</span>
       </div>
 
       <button

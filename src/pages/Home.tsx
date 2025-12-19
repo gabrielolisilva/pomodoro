@@ -223,10 +223,11 @@ export function Home() {
             />
           </div>
 
-          <div className="max-w-2xl w-full mt-8 lg:mt-[100px]">
+          <div className="max-w-2xl w-full mt-8 lg:mt-[100px] pb-20">
             <TaskList
               workingPomodoroCount={workingPomodoroCount}
               onActiveTaskChange={(taskId) => setActiveTaskId(taskId)}
+              pomodoroDurationSeconds={modeDurations.foco}
             />
           </div>
         </div>
