@@ -1,27 +1,13 @@
-import type { Mode } from "../utils/helpers";
+import { usePomodoro } from "../context/PomodoroContent";
+import { formatTimerDigits } from "../utils/helpers";
 
-interface TimerProps {
-  minutes: number;
-  seconds: number;
-  status: string;
-  mode: Mode;
-  workingPomodoroCount: number;
-}
-
-export function Timer({
-  minutes,
-  seconds,
-  status,
-  mode,
-  workingPomodoroCount,
-}: TimerProps) {
-  const formatTime = (value: number) => {
-    return value.toString().padStart(2, "0");
-  };
+export function Timer() {
+  const { minutes, seconds, modeStatus, mode, workingPomodoroCount } =
+    usePomodoro();
 
   return (
     <div className="flex flex-col items-center justify-center mb-18">
-      <p className="text-white text-lg mb-8">{status}</p>
+      <p className="text-white text-lg mb-8">{modeStatus}</p>
       <div className="relative">
         {/* Glow effect */}
         <div
@@ -41,7 +27,7 @@ export function Timer({
         <div className="relative w-64 h-64 rounded-full border-4 border-orange-500/30 flex items-center justify-center bg-black/20">
           <div className="text-center">
             <span className="text-orange-500 text-6xl font-bold tabular-nums">
-              {formatTime(minutes)}:{formatTime(seconds)}
+              {formatTimerDigits(minutes)}:{formatTimerDigits(seconds)}
             </span>
           </div>
         </div>

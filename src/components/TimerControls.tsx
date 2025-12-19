@@ -1,23 +1,14 @@
 import { LuRefreshCcw } from "react-icons/lu";
 import { MdPauseCircleOutline, MdPlayCircleOutline } from "react-icons/md";
+import { usePomodoro } from "../context/PomodoroContent";
 
-interface TimerControlsProps {
-  isRunning: boolean;
-  onStart: () => void;
-  onPause: () => void;
-  onReset: () => void;
-}
+export function TimerControls() {
+  const { handleStart, handlePause, handleReset, isRunning } = usePomodoro();
 
-export function TimerControls({
-  isRunning,
-  onStart,
-  onPause,
-  onReset,
-}: TimerControlsProps) {
   return (
     <div className="flex items-center justify-center gap-4">
       <button
-        onClick={onReset}
+        onClick={handleReset}
         className="w-12 h-12 rounded-full bg-gray-800 text-white hover:bg-gray-700 transition-colors flex items-center justify-center cursor-pointer"
         aria-label="Resetar timer"
       >
@@ -25,7 +16,7 @@ export function TimerControls({
       </button>
 
       <div
-        onClick={isRunning ? onPause : onStart}
+        onClick={isRunning ? handlePause : handleStart}
         className="px-8 py-3 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors cursor-pointer flex items-center gap-2"
       >
         {isRunning ? (

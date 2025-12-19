@@ -1,28 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
-  getTasksFromLocalStorage,
   calculateEstimatedTime,
   formatTime,
   formatDuration,
-  type Task,
 } from "../utils/tasks";
+import { usePomodoro } from "../context/PomodoroContent";
 
-interface TaskSummaryProps {
-  pomodoroDurationSeconds: number;
-  refreshTrigger?: number;
-}
+export function TaskSummary() {
+  const { tasks, modeDurations } = usePomodoro();
 
-export function TaskSummary({
-  pomodoroDurationSeconds,
-  refreshTrigger,
-}: TaskSummaryProps) {
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [finishTime, setFinishTime] = useState<Date>(new Date());
   const [durationHours, setDurationHours] = useState<number>(0);
-
-  useEffect(() => {
-    setTasks(getTasksFromLocalStorage());
-  }, [refreshTrigger]);
 
   const totalEstimated = tasks.reduce(
     (sum, task) => sum + task.estimatedPomodoros,
@@ -34,15 +22,34 @@ export function TaskSummary({
   );
   const remainingPomodoros = totalEstimated - totalCompleted;
 
-  setInterval(() => {
-    const { finishTime, durationHours } = calculateEstimatedTime(
-      remainingPomodoros,
-      pomodoroDurationSeconds
-    );
+  const intervalRef = useRef<number | null>(null);
 
-    setFinishTime(finishTime);
-    setDurationHours(durationHours);
-  }, 1000);
+  const updateEstimatedTime = () => {
+    const { finishTime: newFinishTime, durationHours: newDurationHours } =
+      calculateEstimatedTime(remainingPomodoros, modeDurations.foco);
+
+    setFinishTime(newFinishTime);
+    setDurationHours(newDurationHours);
+  };
+
+  useEffect(() => {
+    updateEstimatedTime();
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    intervalRef.current = window.setInterval(() => {
+      updateEstimatedTime();
+    }, 60000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [remainingPomodoros, modeDurations.foco]);
 
   if (tasks.length === 0 || remainingPomodoros === 0) {
     return null;

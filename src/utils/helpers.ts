@@ -12,3 +12,7 @@ export const DEFAULT_DURATIONS: { [key in Mode]: number } = {
 };
 
 export const DESCANSO_PERIODO = 4;
+
+export const formatTimerDigits = (value: number) => {
+  return value.toString().padStart(2, "0");
+};

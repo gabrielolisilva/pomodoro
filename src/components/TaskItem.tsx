@@ -1,26 +1,53 @@
 import { calculateEstimatedTime, formatTime, type Task } from "../utils/tasks";
 import { HiEllipsisVertical } from "react-icons/hi2";
 import { MdCheckCircle, MdRadioButtonUnchecked } from "react-icons/md";
+import { usePomodoro } from "../context/PomodoroContent";
+import { useEffect, useRef, useState } from "react";
 
 interface TaskItemProps {
   task: Task;
   onEdit: (task: Task) => void;
   onToggleComplete: (taskId: string) => void;
-  pomodoroDurationSeconds: number;
 }
 
-export function TaskItem({
-  task,
-  onEdit,
-  onToggleComplete,
-  pomodoroDurationSeconds,
-}: TaskItemProps) {
+export function TaskItem({ task, onEdit, onToggleComplete }: TaskItemProps) {
+  const { modeDurations } = usePomodoro();
+  const [finishTime, setFinishTime] = useState<Date>(new Date());
+
   const isCompleted = task.completedPomodoros >= task.estimatedPomodoros;
 
-  const { finishTime } = calculateEstimatedTime(
-    task.estimatedPomodoros - task.completedPomodoros,
-    pomodoroDurationSeconds
-  );
+  const intervalRef = useRef<number | null>(null);
+
+  const updateEstimatedTime = () => {
+    const remainingPomodoros =
+      task.estimatedPomodoros - task.completedPomodoros;
+
+    const { finishTime: newFinishTime } = calculateEstimatedTime(
+      remainingPomodoros,
+      modeDurations.foco
+    );
+
+    setFinishTime(newFinishTime);
+  };
+
+  useEffect(() => {
+    updateEstimatedTime();
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    intervalRef.current = window.setInterval(() => {
+      updateEstimatedTime();
+    }, 60000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [task.estimatedPomodoros, task.completedPomodoros, modeDurations.foco]);
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-2 flex items-center gap-3">

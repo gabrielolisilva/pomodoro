@@ -11,25 +11,21 @@ import { useRef, useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { getCompletedTasksFromLocalStorage } from "../utils/tasks";
 import { PaginationPathEnum } from "../utils/pagination";
+import { usePomodoro } from "../context/PomodoroContent";
 
-interface HeaderProps {
-  onUpdateDurations: (durations: { [key in Mode]: number }) => void;
-  currentDurations: { [key in Mode]: number };
-  pomodoroCount: number;
-  handleUpdateDescansoPeriod: (newPeriod: number) => void;
-}
-
-export function Header({
-  onUpdateDurations,
-  currentDurations,
-  pomodoroCount,
-  handleUpdateDescansoPeriod,
-}: HeaderProps) {
+export function Header() {
   const location = useLocation();
   const focoTimeRef = useRef<HTMLInputElement>(null);
   const pausaTimeRef = useRef<HTMLInputElement>(null);
   const descansoTimeRef = useRef<HTMLInputElement>(null);
   const descansoPeriodRef = useRef<HTMLInputElement>(null);
+
+  const {
+    modeDurations,
+    pomodoroCount,
+    handleUpdateDurations,
+    handleUpdateDescansoPeriod,
+  } = usePomodoro();
 
   const [completedTasksCount, setCompletedTasksCount] = useState(
     getCompletedTasksFromLocalStorage().length
@@ -57,9 +53,9 @@ export function Header({
   }, [location.pathname]);
 
   const handleSettingsClick = async () => {
-    const focoMinutes = Math.floor(currentDurations.foco / 60);
-    const pausaMinutes = Math.floor(currentDurations.pausa / 60);
-    const descansoMinutes = Math.floor(currentDurations.descanso / 60);
+    const focoMinutes = Math.floor(modeDurations.foco / 60);
+    const pausaMinutes = Math.floor(modeDurations.pausa / 60);
+    const descansoMinutes = Math.floor(modeDurations.descanso / 60);
 
     const result = await MySwal.fire({
       title: "Configurações do Timer",
@@ -195,8 +191,7 @@ export function Header({
         descanso: resultValue.descanso * 60,
       };
 
-      onUpdateDurations(newDurations);
-
+      handleUpdateDurations(newDurations);
       handleUpdateDescansoPeriod(resultValue.descansoPeriod);
 
       MySwal.fire({

@@ -1,12 +1,7 @@
 import { HiOutlineBookOpen } from "react-icons/hi2";
 import { IoPauseOutline, IoMoonOutline } from "react-icons/io5";
-
-type Mode = "foco" | "pausa" | "descanso";
-
-interface ModeSelectorProps {
-  currentMode: Mode;
-  onModeChange: (mode: Mode) => void;
-}
+import { usePomodoro } from "../context/PomodoroContent";
+import type { Mode } from "../utils/helpers";
 
 interface Modes {
   id: Mode;
@@ -14,7 +9,9 @@ interface Modes {
   icon: React.ReactNode;
 }
 
-export function ModeSelector({ currentMode, onModeChange }: ModeSelectorProps) {
+export function ModeSelector() {
+  const { mode, setMode } = usePomodoro();
+
   const modes: Modes[] = [
     {
       id: "foco",
@@ -35,18 +32,18 @@ export function ModeSelector({ currentMode, onModeChange }: ModeSelectorProps) {
 
   return (
     <div className="flex justify-center gap-2 mb-6">
-      {modes.map((mode) => (
+      {modes.map((modeItem) => (
         <button
-          key={mode.id}
-          onClick={() => onModeChange(mode.id)}
+          key={modeItem.id}
+          onClick={() => setMode(modeItem.id)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
-            currentMode === mode.id
+            mode === modeItem.id
               ? "bg-orange-500 text-white"
               : "bg-gray-800 text-white hover:bg-gray-700"
           }`}
         >
-          {mode.icon}
-          <span>{mode.label}</span>
+          {modeItem.icon}
+          <span>{modeItem.label}</span>
         </button>
       ))}
     </div>

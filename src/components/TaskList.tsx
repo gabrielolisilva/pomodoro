@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   type Task,
   getTasksFromLocalStorage,
@@ -12,66 +12,13 @@ import {
 import { TaskForm } from "./TaskForm";
 import { TaskItem } from "./TaskItem";
 import { HiEllipsisVertical } from "react-icons/hi2";
+import { usePomodoro } from "../context/PomodoroContent";
 
-interface TaskListProps {
-  workingPomodoroCount: number;
-  onActiveTaskChange: (taskId: string | null) => void;
-  pomodoroDurationSeconds: number;
-}
+export function TaskList() {
+  const { tasks, setTasks, activeTaskId, setActiveTaskId } = usePomodoro();
 
-export function TaskList({
-  workingPomodoroCount,
-  onActiveTaskChange,
-  pomodoroDurationSeconds,
-}: TaskListProps) {
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isAddingTask, setIsAddingTask] = useState(false);
-  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadedTasks = getTasksFromLocalStorage();
-    setTasks(loadedTasks);
-
-    const firstNotCompletedId = getFirstNotCompletedTaskId();
-    if (firstNotCompletedId) {
-      setActiveTaskId(firstNotCompletedId);
-      onActiveTaskChange(firstNotCompletedId);
-    }
-  }, []);
-
-  useEffect(() => {
-    const updatedTasks = getTasksFromLocalStorage();
-
-    updatedTasks.forEach((task) => {
-      if (task.completedPomodoros >= task.estimatedPomodoros) {
-        moveTaskToCompleted(task.id);
-      }
-    });
-
-    const remainingTasks = getTasksFromLocalStorage();
-    setTasks(remainingTasks);
-
-    if (activeTaskId) {
-      const activeTask = remainingTasks.find((t) => t.id === activeTaskId);
-      if (!activeTask) {
-        const nextTaskId = getFirstNotCompletedTaskId();
-        if (nextTaskId) {
-          setActiveTaskId(nextTaskId);
-          onActiveTaskChange(nextTaskId);
-        } else {
-          setActiveTaskId(null);
-          onActiveTaskChange(null);
-        }
-      }
-    } else {
-      const firstNotCompletedId = getFirstNotCompletedTaskId();
-      if (firstNotCompletedId) {
-        setActiveTaskId(firstNotCompletedId);
-        onActiveTaskChange(firstNotCompletedId);
-      }
-    }
-  }, [workingPomodoroCount]);
 
   const handleSave = (
     name: string,
@@ -104,7 +51,6 @@ export function TaskList({
 
       if (!activeTaskId) {
         setActiveTaskId(newTask.id);
-        onActiveTaskChange(newTask.id);
       }
     }
   };
@@ -127,7 +73,6 @@ export function TaskList({
       }
       if (activeTaskId === taskId) {
         setActiveTaskId(null);
-        onActiveTaskChange(null);
       }
     }
   };
@@ -154,10 +99,8 @@ export function TaskList({
         const nextTaskId = getFirstNotCompletedTaskId();
         if (nextTaskId) {
           setActiveTaskId(nextTaskId);
-          onActiveTaskChange(nextTaskId);
         } else {
           setActiveTaskId(null);
-          onActiveTaskChange(null);
         }
       }
     }
@@ -166,7 +109,6 @@ export function TaskList({
   const handleSetActiveTask = (taskId: string) => {
     const newActiveTaskId = taskId === activeTaskId ? null : taskId;
     setActiveTaskId(newActiveTaskId);
-    onActiveTaskChange(newActiveTaskId);
   };
 
   const displayTasks = editingTask
@@ -200,7 +142,6 @@ export function TaskList({
                 task={task}
                 onEdit={handleEdit}
                 onToggleComplete={handleToggleComplete}
-                pomodoroDurationSeconds={pomodoroDurationSeconds}
               />
             </div>
           </div>
@@ -219,7 +160,7 @@ export function TaskList({
       {!isAddingTask && !editingTask && (
         <button
           onClick={() => setIsAddingTask(true)}
-          className="w-full border-2 border-dashed border-gray-700 text-gray-400 hover:border-orange-500 hover:text-orange-500 rounded-lg py-4 transition-colors"
+          className="w-full border-2 border-dashed border-gray-700 text-gray-400 hover:border-orange-500 hover:text-orange-500 rounded-lg py-4 transition-colors cursor-pointer"
         >
           + Adicionar Tarefa
         </button>
