@@ -24,7 +24,8 @@ export function TaskList() {
     name: string,
     completedPomodoros: number,
     estimatedPomodoros: number,
-    note?: string
+    note?: string,
+    tags?: string[]
   ) => {
     if (editingTask) {
       const updated = updateTask(editingTask.id, {
@@ -32,6 +33,7 @@ export function TaskList() {
         completedPomodoros,
         estimatedPomodoros,
         note,
+        tags,
       });
       if (updated) {
         setTasks(getTasksFromLocalStorage());
@@ -42,7 +44,8 @@ export function TaskList() {
         name,
         completedPomodoros,
         estimatedPomodoros,
-        note
+        note,
+        tags
       );
       const updatedTasks = [...tasks, newTask];
       setTasks(updatedTasks);

@@ -127,6 +127,19 @@ export function CompletedTasks() {
                             </h3>
                           </div>
 
+                          {task.tags && task.tags.length > 0 && (
+                            <div className="ml-5 mb-3 flex flex-wrap gap-2">
+                              {task.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-full border border-orange-500/30"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
                           {task.note && (
                             <div className="ml-5 mb-3">
                               <div

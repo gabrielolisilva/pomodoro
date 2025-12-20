@@ -73,6 +73,18 @@ export function TaskItem({ task, onEdit, onToggleComplete }: TaskItemProps) {
         >
           {task.name}
         </p>
+        {task.tags && task.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1">
+            {task.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-0.5 bg-orange-500/20 text-orange-400 text-xs rounded-full border border-orange-500/30"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2 text-sm">

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { type Task } from "../utils/tasks";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi2";
 import { MdDelete } from "react-icons/md";
-import { MySwal } from "../utils/helpers";
+import { MySwal, DEFAULT_TASKS_TAGS } from "../utils/helpers";
 
 interface TaskFormProps {
   task?: Task | null;
@@ -10,7 +10,8 @@ interface TaskFormProps {
     name: string,
     completedPomodoros: number,
     estimatedPomodoros: number,
-    note?: string
+    note?: string,
+    tags?: string[]
   ) => void;
   onCancel: () => void;
   onDelete?: (taskId: string) => void;
@@ -25,6 +26,7 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
     task?.completedPomodoros || 0
   );
   const [note, setNote] = useState(task?.note || "");
+  const [selectedTags, setSelectedTags] = useState<string[]>(task?.tags || []);
 
   const noteTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -34,11 +36,13 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
       setEstimatedPomodoros(task.estimatedPomodoros);
       setCompletedPomodoros(task.completedPomodoros);
       setNote(task.note || "");
+      setSelectedTags(task.tags || []);
     } else {
       setName("");
       setEstimatedPomodoros(1);
       setCompletedPomodoros(0);
       setNote("");
+      setSelectedTags([]);
     }
   }, [task]);
 
@@ -57,9 +61,16 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
         name.trim(),
         completedPomodoros,
         estimatedPomodoros,
-        note.trim() || undefined
+        note.trim() || undefined,
+        selectedTags.length > 0 ? selectedTags : undefined
       );
     }
+  };
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
   };
 
   const displaySwalNote = async () => {
@@ -159,6 +170,29 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
               <HiChevronDown size={16} />
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-gray-400 text-sm mb-2">Tags</label>
+        <div className="flex flex-wrap gap-2">
+          {DEFAULT_TASKS_TAGS.map((tag) => {
+            const isSelected = selectedTags.includes(tag);
+            return (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => toggleTag(tag)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  isSelected
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                }`}
+              >
+                {tag}
+              </button>
+            );
+          })}
         </div>
       </div>
 

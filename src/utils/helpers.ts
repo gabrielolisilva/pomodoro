@@ -16,3 +16,20 @@ export const DESCANSO_PERIODO = 4;
 export const formatTimerDigits = (value: number) => {
   return value.toString().padStart(2, "0");
 };
+
+export const DEFAULT_TASKS_TAGS: string[] = [
+  "Estudo",
+  "Trabalho",
+  "Leitura",
+  "Exercício",
+  "Programação",
+  "Reunião",
+  "Pesquisa",
+  "Descanso",
+  "Idiomas",
+  "Acadêmico",
+  "Projeto",
+  "Planejamento",
+  "Revisão",
+  "Saúde",
+];

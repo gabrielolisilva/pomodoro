@@ -6,6 +6,7 @@ export interface Task {
   createdAt: number;
   updatedAt: number;
   note?: string;
+  tags?: string[];
 }
 
 const TASKS_KEY = "tasks";
@@ -31,7 +32,8 @@ export const createTask = (
   name: string,
   completedPomodoros: number,
   estimatedPomodoros: number,
-  note?: string
+  note?: string,
+  tags?: string[]
 ): Task => {
   const now = Date.now();
   return {
@@ -42,6 +44,7 @@ export const createTask = (
     createdAt: now,
     updatedAt: now,
     note,
+    tags,
   };
 };
 
