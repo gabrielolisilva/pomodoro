@@ -83,6 +83,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   const intervalRef = useRef<number | null>(null);
   const modeRef = useRef<Mode>(mode);
   const hasTransitionedRef = useRef<boolean>(false);
+  const bellSoundRef = useRef<HTMLAudioElement | null>(null);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -161,6 +162,12 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
 
             hasTransitionedRef.current = true;
             setIsRunning(false);
+
+            if (!bellSoundRef.current) {
+              bellSoundRef.current = new Audio("/sounds/bell.mp3");
+            }
+            bellSoundRef.current.currentTime = 0;
+            bellSoundRef.current.play().catch(() => {});
 
             switch (modeRef.current) {
               case "foco":
