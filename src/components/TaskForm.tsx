@@ -11,7 +11,7 @@ interface TaskFormProps {
     completedPomodoros: number,
     estimatedPomodoros: number,
     note?: string,
-    tags?: string[]
+    tags?: string[],
   ) => void;
   onCancel: () => void;
   onDelete?: (taskId: string) => void;
@@ -20,10 +20,10 @@ interface TaskFormProps {
 export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
   const [name, setName] = useState(task?.name || "");
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(
-    task?.estimatedPomodoros || 1
+    task?.estimatedPomodoros || 1,
   );
   const [completedPomodoros, setCompletedPomodoros] = useState(
-    task?.completedPomodoros || 0
+    task?.completedPomodoros || 0,
   );
   const [note, setNote] = useState(task?.note || "");
   const [selectedTags, setSelectedTags] = useState<string[]>(task?.tags || []);
@@ -62,14 +62,14 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
         completedPomodoros,
         estimatedPomodoros,
         note.trim() || undefined,
-        selectedTags.length > 0 ? selectedTags : undefined
+        selectedTags.length > 0 ? selectedTags : undefined,
       );
     }
   };
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   };
 
@@ -93,8 +93,10 @@ export function TaskForm({ task, onSave, onCancel, onDelete }: TaskFormProps) {
       reverseButtons: true,
       confirmButtonText: "Salvar",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#f97316",
-      cancelButtonColor: "#6b7280",
+      customClass: {
+        cancelButton: "cancel-button",
+        confirmButton: "confirm-button",
+      },
       preConfirm: () => {
         const noteInput = noteTextareaRef.current?.value;
         return noteInput?.trim() || "";
