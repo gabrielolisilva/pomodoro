@@ -28,7 +28,7 @@ export function Header() {
   } = usePomodoro();
 
   const [completedTasksCount, setCompletedTasksCount] = useState(
-    getCompletedTasksFromLocalStorage().length
+    getCompletedTasksFromLocalStorage().length,
   );
 
   useEffect(() => {
@@ -115,8 +115,10 @@ export function Header() {
       reverseButtons: true,
       confirmButtonText: "Salvar",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#f97316",
-      cancelButtonColor: "#6b7280",
+      customClass: {
+        cancelButton: "cancel-button",
+        confirmButton: "confirm-button",
+      },
       preConfirm: () => {
         const focoInput = focoTimeRef.current?.value;
         const pausaInput = pausaTimeRef.current?.value;
@@ -125,25 +127,25 @@ export function Header() {
 
         const foco = parseInt(
           focoInput ?? DEFAULT_DURATIONS.foco.toString(),
-          10
+          10,
         );
         const pausa = parseInt(
           pausaInput ?? DEFAULT_DURATIONS.pausa.toString(),
-          10
+          10,
         );
         const descanso = parseInt(
           descansoInput ?? DEFAULT_DURATIONS.descanso.toString(),
-          10
+          10,
         );
 
         const descansoPeriod = parseInt(
           descansoPeriodInput ?? DESCANSO_PERIODO.toString(),
-          10
+          10,
         );
 
         if (foco < 1 || foco > 120) {
           MySwal.showValidationMessage(
-            "Tempo de foco deve ser entre 1 e 120 minutos"
+            "Tempo de foco deve ser entre 1 e 120 minutos",
           );
 
           return false;
@@ -151,7 +153,7 @@ export function Header() {
 
         if (pausa < 1 || pausa > 60) {
           MySwal.showValidationMessage(
-            "Tempo de pausa deve ser entre 1 e 60 minutos"
+            "Tempo de pausa deve ser entre 1 e 60 minutos",
           );
 
           return false;
@@ -159,7 +161,7 @@ export function Header() {
 
         if (descanso < 1 || descanso > 60) {
           MySwal.showValidationMessage(
-            "Tempo de descanso deve ser entre 1 e 60 minutos"
+            "Tempo de descanso deve ser entre 1 e 60 minutos",
           );
 
           return false;
@@ -167,7 +169,7 @@ export function Header() {
 
         if (descansoPeriod < 1) {
           MySwal.showValidationMessage(
-            "Pomodoros descanso deve ser maior que 0"
+            "Pomodoros descanso deve ser maior que 0",
           );
 
           return false;

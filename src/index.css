@@ -3,3 +3,11 @@
 * {
   box-sizing: border-box;
 }
+
+.cancel-button {
+  @apply px-4 py-2 bg-red-500 text-white rounded-md font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.confirm-button {
+  @apply px-4 py-2 bg-orange-500 text-white rounded-md font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}

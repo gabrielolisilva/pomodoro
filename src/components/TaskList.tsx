@@ -11,7 +11,6 @@ import {
 } from "../utils/tasks";
 import { TaskForm } from "./TaskForm";
 import { TaskItem } from "./TaskItem";
-import { HiEllipsisVertical } from "react-icons/hi2";
 import { usePomodoro } from "../context/PomodoroContent";
 
 export function TaskList() {
@@ -25,7 +24,7 @@ export function TaskList() {
     completedPomodoros: number,
     estimatedPomodoros: number,
     note?: string,
-    tags?: string[]
+    tags?: string[],
   ) => {
     if (editingTask) {
       const updated = updateTask(editingTask.id, {
@@ -45,7 +44,7 @@ export function TaskList() {
         completedPomodoros,
         estimatedPomodoros,
         note,
-        tags
+        tags,
       );
       const updatedTasks = [...tasks, newTask];
       setTasks(updatedTasks);
@@ -120,15 +119,7 @@ export function TaskList() {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-white text-xl font-semibold">Tarefas</h2>
-        <button
-          className="text-gray-400 hover:text-orange-500 transition-colors p-1"
-          aria-label="Opções"
-        >
-          <HiEllipsisVertical size={20} />
-        </button>
-      </div>
+      <h2 className="text-white text-xl font-semibold">Tarefas</h2>
 
       <div className="mb-4">
         {displayTasks.map((task) => (
