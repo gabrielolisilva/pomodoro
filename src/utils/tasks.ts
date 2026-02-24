@@ -1,3 +1,5 @@
+import { STORAGE_KEYS } from "../constants/storage";
+
 export interface Task {
   id: string;
   name: string;
@@ -9,16 +11,19 @@ export interface Task {
   tags?: string[];
 }
 
-const TASKS_KEY = "tasks";
-const COMPLETED_TASKS_KEY = "completedTasks";
-
 export const saveTasksInLocalStorage = (tasks: Task[]) => {
-  localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+  localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
 };
 
 export const getTasksFromLocalStorage = (): Task[] => {
-  const tasks = localStorage.getItem(TASKS_KEY);
-  return tasks ? JSON.parse(tasks) : [];
+  const raw = localStorage.getItem(STORAGE_KEYS.TASKS);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 };
 
 export const getFirstNotCompletedTaskId = (): string | null => {
@@ -100,12 +105,18 @@ export const incrementTaskPomodoro = (taskId: string): Task | null => {
 };
 
 export const getCompletedTasksFromLocalStorage = (): Task[] => {
-  const tasks = localStorage.getItem(COMPLETED_TASKS_KEY);
-  return tasks ? JSON.parse(tasks) : [];
+  const raw = localStorage.getItem(STORAGE_KEYS.COMPLETED_TASKS);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 };
 
 export const saveCompletedTasksInLocalStorage = (tasks: Task[]) => {
-  localStorage.setItem(COMPLETED_TASKS_KEY, JSON.stringify(tasks));
+  localStorage.setItem(STORAGE_KEYS.COMPLETED_TASKS, JSON.stringify(tasks));
 };
 
 export const moveTaskToCompleted = (taskId: string): boolean => {

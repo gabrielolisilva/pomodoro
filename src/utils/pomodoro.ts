@@ -1,14 +1,19 @@
+import { STORAGE_KEYS } from "../constants/storage";
 import { DESCANSO_PERIODO } from "./helpers";
 
-const POMODORO_COUNTER_KEY = "pomodoroCounter";
-
 export const getPomodoroCounterFromLocalStorage = (): number => {
-  const counter = localStorage.getItem(POMODORO_COUNTER_KEY);
-  return counter ? parseInt(counter, 10) : 1;
+  const raw = localStorage.getItem(STORAGE_KEYS.POMODORO_COUNTER);
+  if (!raw) return 1;
+  try {
+    const value = parseInt(raw, 10);
+    return Number.isFinite(value) && value >= 1 ? value : 1;
+  } catch {
+    return 1;
+  }
 };
 
 export const savePomodoroCounterInLocalStorage = (counter: number) => {
-  localStorage.setItem(POMODORO_COUNTER_KEY, counter.toString());
+  localStorage.setItem(STORAGE_KEYS.POMODORO_COUNTER, counter.toString());
 };
 
 export const incrementPomodoroCounter = (): number => {
@@ -18,13 +23,17 @@ export const incrementPomodoroCounter = (): number => {
   return newCounter;
 };
 
-const DESCANSO_PERIODO_KEY = "descansoPeriod";
-
 export const getDescansoPeriodFromLocalStorage = (): number => {
-  const period = localStorage.getItem(DESCANSO_PERIODO_KEY);
-  return period ? parseInt(period, 10) : DESCANSO_PERIODO;
+  const raw = localStorage.getItem(STORAGE_KEYS.DESCANSO_PERIODO);
+  if (!raw) return DESCANSO_PERIODO;
+  try {
+    const value = parseInt(raw, 10);
+    return Number.isFinite(value) && value >= 1 ? value : DESCANSO_PERIODO;
+  } catch {
+    return DESCANSO_PERIODO;
+  }
 };
 
 export const saveDescansoPeriodInLocalStorage = (period: number) => {
-  localStorage.setItem(DESCANSO_PERIODO_KEY, period.toString());
+  localStorage.setItem(STORAGE_KEYS.DESCANSO_PERIODO, period.toString());
 };
